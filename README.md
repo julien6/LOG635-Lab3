@@ -21,4 +21,6 @@ Lien énoncé : https://drive.google.com/open?id=1C-RyLh07h8AbQvk88eTJzgmOU4cLqQ
 Lien rapport : https://drive.google.com/open?id=1_DDRHSPUoHimDedk3J7_ZFev1rcmToxAob6hLkLG2us
 
 
-TODO : 3/4 indices, 3/4 personnages, 3/4 pièces
+TODO :
+ - 3/4 indices, 3/4 personnages, 3/4 pièces
+ - ajouter medecin (donner l'intervalle de temps dans lequel le meurtre a eu lieu)
