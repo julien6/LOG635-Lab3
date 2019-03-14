@@ -24,3 +24,9 @@ Lien rapport : https://drive.google.com/open?id=1_DDRHSPUoHimDedk3J7_ZFev1rcmTox
 TODO :
  - 3/4 indices, 3/4 personnages, 3/4 pièces
  - ajouter medecin (donner l'intervalle de temps dans lequel le meurtre a eu lieu)
+ 
+DIVISION DES TACHES :
+Reconnaissance de texte (Gael)
+Moteur d'inférence / scénario (Julien)
+Parcours du robot / représentation du monde (L-P)
+Interraction avec les cubes / marqueurs (Nicolas)
