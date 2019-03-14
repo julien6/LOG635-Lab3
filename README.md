@@ -1,4 +1,4 @@
-# LOG660-Lab3
+# LOG635-Lab3
 
 TODO : Objectifs spécifiques
 1. Créer un ensemble de règles de déduction permettant d’identifier le coupable;
