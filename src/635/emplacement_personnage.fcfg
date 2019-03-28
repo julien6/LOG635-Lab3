@@ -1,0 +1,25 @@
+%start S
+
+S[SEM=<app(?pp, ?vp)>] -> VP[SEM=?vp] PP[SEM = ?pp]
+VP[SEM=?n] -> N[SEM=?n] Pron Vt | N[SEM=?n] V
+N[SEM=?np] -> Nprop[SEM=?np]
+Pron -> 'se'
+Vt -> 'trouve' 
+V -> 'est'
+PP[SEM=<app(?p, ?vp)>] -> Prep[SEM=?p] Det N[SEM = ?vp]
+Prep[SEM=<\x.\y.Dans(y, x)>] -> 'dans'
+Det -> 'le' | 'la'
+N[SEM=<Cuisine>] -> 'cuisine'
+N[SEM=<Salon>] -> 'salon'
+N[SEM=<Burean>] -> 'bureau'
+N[SEM=<Garage>] -> 'garage'
+N[SEM=<Toilette>] -> 'toilette'
+
+Nprop[SEM=<Moutarde>] -> 'Moutarde' | 'moutarde'
+Nprop[SEM=<Pervenche>] -> 'Prevenche' | 'prevenche'
+Nprop[SEM=<Rose>] -> 'Rose' | 'rose'
+Nprop[SEM=<Olive>] -> 'Olive' | 'olive'
+Nprop[SEM=<Leblanc>] -> 'Leblanc' | 'leblanc'
+Nprop[SEM=<Violet>] -> 'Violet' | 'violet'
+Nprop[SEM=<Black>] -> 'Black' | 'black'
+

@@ -1,0 +1,17 @@
+%start S
+
+S[SEM=?vp] -> NP[SEM=?suj] VP[SEM=?vp] | Nprop[SEM=?vp] VP
+VP[SEM=?n] -> V Nprop[SEM=?n] | V Det N
+NP[SEM=?np] -> Det N[SEM=?np]
+Det -> 'La' | 'la'
+N ->  'victime'
+V -> 'est'
+
+
+Nprop[SEM=<Moutarde>] -> 'Moutarde' | 'moutarde'
+Nprop[SEM=<Pervenche>] -> 'Prevenche' | 'prevenche'
+Nprop[SEM=<Rose>] -> 'Rose' | 'rose'
+Nprop[SEM=<Olive>] -> 'Olive' | 'olive'
+Nprop[SEM=<Leblanc>] -> 'Leblanc' | 'leblanc'
+Nprop[SEM=<Violet>] -> 'Violet' | 'violet'
+Nprop[SEM=<Black>] -> 'Black' | 'black'
