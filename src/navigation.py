@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
+import random
+import math
 import cozmo
 from cozmo.objects import CustomObject, CustomObjectMarkers, CustomObjectTypes
 from cozmo.util import degrees, Pose
 from cozmo.objects import LightCube1Id, LightCube2Id, LightCube3Id
 
 ROBOT: cozmo.robot.Robot = None
+ORIGIN_X: int = None
+ORIGIN_Y: int = None
+
+
+def create_pose(x: float, y: float, angle: float) -> Pose:
+    return Pose(x - ORIGIN_X, y - ORIGIN_Y, 0, angle_z=degrees(angle))
 
 
 class RecognizableObject:
@@ -23,7 +31,7 @@ class Marker(RecognizableObject):
     def __init__(self, type: CustomObjectTypes, marker: CustomObjectMarkers):
         self.type = type
         self.marker = marker
-        self.object = ROBOT.world.define_custom_wall(type, marker, 300, 300, 50, 30, True)
+        self.object = ROBOT.world.define_custom_wall(type, marker, 300.0, 300.0, 50.0, 30.0, True)
 
 
 class Actor:
@@ -44,18 +52,18 @@ class Weapon(Actor):
 
 
 class Wall:
-    HEIGHT = 100
-    THICKNESS = 1
-    Z = 0
+    HEIGHT = 100.0
+    THICKNESS = 1.0
 
     def __init__(self, x: float, y: float, length: float, angle: float):
-        self.x = x
-        self.y = y
+        self.x = x + math.cos(math.radians(angle)) * length / 2.0
+        self.y = y + math.sin(math.radians(angle)) * length / 2.0
         self.length = length
         self.angle = angle
-        self.pose = Pose(x, y, Wall.Z, angle_z=degrees(angle), origin_id=-ROBOT.pose.origin_id)
-        self.object = ROBOT.world.create_custom_fixed_object(self.pose, length, Wall.THICKNESS, Wall.HEIGHT, use_robot_origin=True)
 
+    def create_pose(self):
+        self.pose = create_pose(self.x, self.y, self.angle)
+        self.object = ROBOT.world.create_custom_fixed_object(self.pose, self.length, Wall.THICKNESS, Wall.HEIGHT, relative_to_robot=True)
 
 class Room:
     def __init__(self, name: str, center_x: float, center_y: float):
@@ -66,12 +74,15 @@ class Room:
         self.characters = list()
         self.weapons = list()
 
+    def create_pose(self):
+        self.pose = create_pose(self.center_x, self.center_y, 0.0)
 
 class Map:
     def __init__(self):
+        global ORIGIN_X, ORIGIN_Y
 
         # Markers
-        self.markers = {
+        self.markers = [
             Marker(CustomObjectTypes.CustomType00, CustomObjectMarkers.Circles2),
             Marker(CustomObjectTypes.CustomType01, CustomObjectMarkers.Circles3),
             Marker(CustomObjectTypes.CustomType04, CustomObjectMarkers.Diamonds2),
@@ -80,7 +91,7 @@ class Map:
             Marker(CustomObjectTypes.CustomType09, CustomObjectMarkers.Hexagons3),
             Marker(CustomObjectTypes.CustomType12, CustomObjectMarkers.Triangles2),
             Marker(CustomObjectTypes.CustomType13, CustomObjectMarkers.Triangles3),
-        }
+        ]
 
         # Characters
         self.scarlet = Character("Scarlet", Cube(LightCube1Id))
@@ -88,13 +99,13 @@ class Map:
         self.white = Character("White", self.markers[1])
         self.mustard = Character("Mustard", Cube(LightCube2Id))
         self.peacock = Character("Peacock", self.markers[2])
-        self.characters = {self.scarlet, self.plum, self.white, self.mustard, self.peacock}
+        self.characters = [self.scarlet, self.plum, self.white, self.mustard, self.peacock]
 
         # Weapons
         self.rope = Weapon("Rope", self.markers[3])
         self.knife = Weapon("Knife", self.markers[4])
         self.gun = Weapon("Gun", self.markers[5])
-        self.weapons = {self.rope, self.knife, self.gun}
+        self.weapons = [self.rope, self.knife, self.gun]
 
         # Toilet
         self.toilet = Room("Toilet", center_x=150, center_y=200)
@@ -128,7 +139,7 @@ class Map:
         self.living_room.walls.append(Wall(x=600, y=0, length=400, angle=0))
         self.living_room.walls.append(Wall(x=600, y=0, length=200, angle=90))
         self.living_room.walls.append(Wall(x=600, y=300, length=100, angle=90))
-        self.living_room.walls.append(Wall(x=600, y=300, length=100, angle=0))
+        self.living_room.walls.append(Wall(x=600, y=400, length=100, angle=0))
         self.living_room.walls.append(Wall(x=800, y=400, length=200, angle=0))
         self.living_room.walls.append(Wall(x=1000, y=0, length=400, angle=90))
         self.living_room.characters.append(self.plum)
@@ -155,14 +166,24 @@ class Map:
         self.garage.weapons.append(self.rope)
 
         # Add rooms
-        self.rooms = { self.toilet, self.kitchen, self.dining_room,self.living_room, self.office, self.garage}
+        self.rooms = [self.toilet, self.kitchen, self.dining_room,self.living_room, self.office, self.garage]
 
-        # Set scenario
+        # Scenario
         self.victim = self.scarlet
         self.murderer = self.mustard
         self.murder_room = self.office
         self.murder_weapon = self.rope
         self.start_room = self.living_room
+
+        # Origin
+        ORIGIN_X = self.start_room.center_x
+        ORIGIN_Y = self.start_room.center_y
+
+        # Poses
+        for r in self.rooms:
+            r.create_pose()
+            for w in r.walls:
+                w.create_pose()
 
     def get_actor(self, object: cozmo.world.objects.ObservableObject) -> Actor:
         for c in self.characters:
@@ -172,33 +193,34 @@ class Map:
             if w.recognizable_object.object is object:
                 return w
 
-
 class Program:
     def __init__(self):
-        self.currentActor: Actor = None
+        self.current_actor: Actor = None
         self.map: Map = None
 
     def handle_object_appeared(self, evt, **kw):
         if isinstance(evt.obj, CustomObject):
-            self.currentActor = self.map.get_actor(evt.obj)
+            self.current_actor = self.map.get_actor(evt.obj)
             print("Cozmo started seeing a %s" % self.currentActor.name)
 
     def handle_object_disappeared(self, evt, **kw):
         if isinstance(evt.obj, CustomObject):
             print("Cozmo stopped seeing a %s" % self.map.get_actor(evt.obj).name)
-            self.currentActor = None
+            self.current_actor = None
 
     def start(self):
         # Create map
         self.map = Map()
 
         # Bind events
-        ROBOT.add_event_handler(cozmo.objects.EvtObjectAppeared(), self.handle_object_appeared)
-        ROBOT.add_event_handler(cozmo.objects.EvtObjectDisappeared(), self.handle_object_disappeared)
+        ROBOT.add_event_handler(cozmo.objects.EvtObjectAppeared, self.handle_object_appeared)
+        ROBOT.add_event_handler(cozmo.objects.EvtObjectDisappeared, self.handle_object_disappeared)
 
         # Test navigation...
-        ROBOT.go_to_pose(map.murder_room)
-        
+        while True:
+            target_room: Room = random.choice(self.map.rooms)
+            ROBOT.go_to_pose(target_room.pose).wait_for_completed()
+
 
 def cozmo_program(robot: cozmo.robot.Robot):
     global ROBOT
