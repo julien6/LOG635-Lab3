@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import random
+import time
 import math
 import cozmo
 from cozmo.objects import CustomObject, CustomObjectMarkers, CustomObjectTypes
@@ -107,6 +108,9 @@ class Map:
         self.gun = Weapon("Gun", self.markers[5])
         self.weapons = [self.rope, self.knife, self.gun]
 
+        # Communication cube
+        self.communication_cube = Cube(LightCube3Id)
+
         # Toilet
         self.toilet = Room("Toilet", center_x=150, center_y=200)
         self.toilet.walls.append(Wall(x=0, y=0, length=300, angle=0))
@@ -195,8 +199,9 @@ class Map:
 
 class Program:
     def __init__(self):
-        self.current_actor: Actor = None
         self.map: Map = None
+        self.current_actor: Actor = None
+        self.cube_was_tapped = False
 
     def handle_object_appeared(self, evt, **kw):
         if isinstance(evt.obj, CustomObject):
@@ -208,6 +213,11 @@ class Program:
             print("Cozmo stopped seeing a %s" % self.map.get_actor(evt.obj).name)
             self.current_actor = None
 
+    def handle_cube_tapped(self, evt, **kw):
+        if isinstance(evt.obj, CustomObject):
+            print("Communication cube was tapped")
+            self.current_actor = None
+
     def start(self):
         # Create map
         self.map = Map()
@@ -215,12 +225,20 @@ class Program:
         # Bind events
         ROBOT.add_event_handler(cozmo.objects.EvtObjectAppeared, self.handle_object_appeared)
         ROBOT.add_event_handler(cozmo.objects.EvtObjectDisappeared, self.handle_object_disappeared)
+        self.map.communication_cube.add_event_handler(cozmo.objects.EvtObjectTapped, self.handle_object_disappeared)
 
         # Test navigation...
         while True:
             target_room: Room = random.choice(self.map.rooms)
             ROBOT.go_to_pose(target_room.pose).wait_for_completed()
-
+            self.cube_was_tapped = False
+            look_around = ROBOT.start_behavior(cozmo.behavior.BehaviorTypes.LookAroundInPlace)
+            while not self.cube_was_tapped:
+                if self.current_actor is not None:
+                    #Send fact to inference engine...
+                    pass
+                time.sleep(10)
+            look_around.stop()
 
 def cozmo_program(robot: cozmo.robot.Robot):
     global ROBOT
