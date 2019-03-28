@@ -1,0 +1,50 @@
+Script Scenario :
+
+Etape 0 :
+Robot dans le bureau
+Sait que Scarlet est étranglé par une corde
+
+Etape 1 :
+Trouve Peacock dans le bureau
+Demande à Peacock l’heure du décès
+Question : “ Est-ce que la personne est décédée à 14h ? ”
+Réponse : 1 Tap sur cube de communication (= oui)
+Demande à Peacock où il était à 15h
+Question : “Où étais-tu à 15h ?”
+Réponse : “J’étais dans le salon”
+(2 portes donc random pour aller soit au garage, soit dans le salon)
+Va dans le Living-Room
+
+Etape 2 :
+Robot dans le Living-Room
+Trouve un Plum et un fusil
+Demande à Plum où il était il y a 3h ?
+Question : “Où étais-tu à 15h ?”
+Réponse : “J’étais dans le salon”
+Se déplace vers cuisine
+
+Etape 3 :
+Robot se trouve dans la cuisine
+Trouve White, Mustard et un couteau
+Demande à White où il était il y a 3h
+Question : “Où étais-tu à 15h ?”
+Réponse : “J’étais dans le salon et les toilettes”
+Demande à Mustard où il était il y a 3h ?
+Question : “Où étais-tu à 15h ?”
+Réponse : “J’étais dans le garage”
+Se déplace vers le garage
+
+Etape 4 :
+Robot se trouve dans le garage
+Trouve corde
+
+//déduire de tous les clauses qui est le meurtrier9eur, X est innocent
+Si X as été tué par étranglement, la corde Y est l’arme du crime
+Si X as été tué par coupure, le couteau Y est l’arme du crime
+Si X as été tué par balle de fusil, le fusil Y est l’arme du crime
+Si X est le seul qui a accès à l’arme du crime, X est coupable
+Si X
+Si X est dans la pièce Y, Y fait partie des pièces qu’il a visité
+Si X à été dans la pièce Y, Y fait partie des pièces qu’il a visité
+Si l’arme X dans la pièce Y et que Y fais partie des pièce visité par Z, Z à eu accès à X
+
