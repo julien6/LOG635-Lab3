@@ -1,6 +1,7 @@
 from aima.logic import *
 
 
+# Permet d'inferer qui est le meurtrier, quand, comment, où il a tué.
 class InferenceCrime:
     def __init__(self):
         self.Armes = ["Fusil", "Corde", "Couteau"]
@@ -58,9 +59,20 @@ class InferenceCrime:
 
         # Si la personne est morte alors elle est innocente
         self.clauses.append(expr('EstMort(x) ==> Innocent(x)'))
+        # Si la personne se trouvait dans une piece differente a l'heure du crime alors elle est innocente
         self.clauses.append(
             expr(
-                "PieceCrime(r1) & Different(r1, r2) & EstVivant(p) & HeureCrime(h) & EstDansHeure(p,r2,h) ==> Innocent(p)"))
+                "PieceCrime(r1) & Different(r1, r2) & EstVivant(p)"
+                " & HeureCrime(h) & EstDansHeure(p,r2,h) ==> Innocent(p)"))
+
+        # Si la personne est vivante et n'est pas suspecte alors elle est innocente
+        self.clauses.append(expr('EstVivant(p) & ~Suspect(p) ==> Innocent(p)'))
+
+        # Si la personne se trouvait dans une piece qui contient l'arme
+        # qui a tué la victime une heure après le meurtre alors elle est suspecte
+        self.clauses.append(expr(
+            'EstVivant(p) & HeureCrime(h) & HeureCrimePlusOne(h,h1) & EstDansHeure(p,r2,h1) & PieceCrime(r1)'
+            ' & Different(r1,r2)) & ArmeCrime(a) & EstDans(r2, a) ==> Suspect(p)'))
 
     def add_personne_vivante(self, personne):
         self.crime_kb.tell(expr(self.vivant_clause.format(personne)))
