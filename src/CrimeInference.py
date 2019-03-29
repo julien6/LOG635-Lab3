@@ -158,6 +158,13 @@ class CrimeInference:
         else:
             return result[x]
 
+    def get_crime_heure_plusone(self):
+        result = self.crime_kb.ask(expr('HeureCrimePlusOne(x)'))
+        if not result:
+            return result
+        else:
+            return result[x]
+
     def get_suspect(self):
         result = self.crime_kb.ask(expr('Suspect(x)'))
         if not result:
