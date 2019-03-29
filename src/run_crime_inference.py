@@ -1,4 +1,4 @@
-import CrimeInference
+from src import CrimeInference
 
 a = CrimeInference.CrimeInference()
 
