@@ -20,5 +20,5 @@ sents4 = ['Moutarde était avec prevenche à 4h']
 
 printResults(nltk.interpret_sents(sents4, '635/etait_avec_qui.fcfg'))
 
-#printResults(nltk.interpret_sents(sents1, '635/victime.fcfg'))
-#printResults(nltk.interpret_sents(sents1bis, '635/victime.fcfg'))
+#printResults(nltk.interpret_sents(sents1, '635/arme_piece.fcfg'))
+#printResults(nltk.interpret_sents(sents1bis, '635/arme_piece.fcfg'))

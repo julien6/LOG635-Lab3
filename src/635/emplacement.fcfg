@@ -4,7 +4,7 @@ S[SEM =?vp] -> VP PP[SEM = ?vp]
 VP -> N Pron Vt | N V
 N -> 'Tu' |'tu'
 Pron -> 'te'
-Vt -> 'trouves' 
+Vt -> 'trouves'
 V -> 'es'
 PP[SEM = ?vp] -> Prep Det N[SEM = ?vp]
 Prep -> 'dans'

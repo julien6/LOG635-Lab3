@@ -40,3 +40,19 @@ Nh[SEM=<21>] -> '21h' | '21h00'
 Nh[SEM=<22>] -> '22h' | '22h00'
 Nh[SEM=<23>] -> '23h' | '23h00'
 Nh[SEM=<24>] -> '24h' | '24h00'
+
+
+Nprop[SEM=<Mustard>] -> 'Mustard'
+Nprop[SEM=<Peacock>] -> 'Peacock'
+Nprop[SEM=<Scarlet>] -> 'Scarlet'
+Nprop[SEM=<Plum>] -> 'Plum'
+Nprop[SEM=<White>] -> 'White'
+
+Npiece[SEM=<Cuisine>] -> 'cuisine' | 'Cuisine'
+Npiece[SEM=<Salon>] -> 'salon' | 'Salon'
+Npiece[SEM=<Burean>] -> 'bureau' | 'Bureau'
+Npiece[SEM=<Garage>] -> 'garage' | 'Garage'
+
+Narme[SEM=<Fusil>] -> 'Fusil' | 'fusil'
+Narme[SEM=<Corde>] -> 'Corde' | 'corde'
+Narme[SEM=<Couteau>] -> 'Couteau' | 'couteau'

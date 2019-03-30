@@ -3,11 +3,11 @@ import nltk
 class CrimeSentenceAnalyzer: 
 
     def __init__(self):
-        self._victim_grammar_file = '635/victime.fcfg'
+        self._victim_grammar_file = '635/arme_piece.fcfg'
         self._location_grammar_file = '635/emplacement.fcfg'
         self._crime_hour_grammar_file = '635/heure_crime.fcfg'
         self._location_hour_grammar_file = '635/emplacement_heure.fcfg'
-        self._location_person_grammar = '635/emplacement_personnage.fcfg'
+        self._location_person_grammar = '635/personnage_piece.fcfg'
         self.was_with_who_grammar = '635/etait_avec_qui.fcfg'
 
     def who_is_the_victime(self, sentence):
