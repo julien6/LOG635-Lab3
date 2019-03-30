@@ -12,8 +12,10 @@ def printResults(results):
 
 # sents0 = ['Le fusil se trouve dans le salon']
 # sents0 = ['Plum est dans la cuisine']
-sents0 = ['White est vivante']
-printResults(nltk.interpret_sents(sents0, '635/arme_piece.fcfg'))
+# sents0 = ['White est vivante']
+# sents0 = ['White est morte']
+sents0 = ['Scarlet a des marques']
+printResults(nltk.interpret_sents(sents0, '635/personne_morte.fcfg'))
 
 # #####   step 0 :
 #
