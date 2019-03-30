@@ -1,17 +1,17 @@
 %start S
 
-S[SEM =?vp] -> NP VP[SEM=?vp]
-VP[SEM=?n] -> V Nh[SEM=?n]
-VP[SEM=?pp] -> V AD PP[SEM=?pp]
-VP[SEM=?pp] -> V V V PP[SEM=?pp]
-NP -> N Det N
-NP -> Det N
-Det -> 'du' | 'La'
-PP[SEM=?n] -> P Nh[SEM=?n]
+S[SEM=<Mort(?n, ?h)>] -> N[SEM=?n] V AD P Nh[SEM=?h]
+N[SEM=?np] -> Nprop[SEM=?np]
+V -> 'est'
+AD -> 'mort' | 'morte'
 P -> 'à'
-AD -> 'morte'
-N -> 'heure' | 'crime' | 'L_heure' | 'victime'
-V -> 'est' | 'a' | 'tuée' | 'été'
+
+Nprop[SEM=<Mustard>] -> 'Mustard'
+Nprop[SEM=<Peacock>] -> 'Peacock'
+Nprop[SEM=<Scarlet>] -> 'Scarlet'
+Nprop[SEM=<Plum>] -> 'Plum'
+Nprop[SEM=<White>] -> 'White'
+
 Nh[SEM=<1>] -> '1h' | '1h00'
 Nh[SEM=<2>] -> '2h' | '2h00'
 Nh[SEM=<3>] -> '3h' | '3h00'
