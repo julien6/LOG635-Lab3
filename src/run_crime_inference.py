@@ -10,14 +10,26 @@ def printResults(results):
             print(semrep)
 
 
-# sents0 = ['Le fusil se trouve dans le salon']
-# sents0 = ['Plum est dans la cuisine']
-# sents0 = ['White est vivante']
-# sents0 = ['White est morte']
-# sents0 = ['Scarlet a des marques au cou']
-# sents0 = ['Scarlet est morte à 14h']
-sents0 = ['White était dans la cuisine à 15h']
-printResults(nltk.interpret_sents(sents0, '635/personne_piece_heure.fcfg'))
+sentsB0 = ['Le fusil se trouve dans le salon']
+printResults(nltk.interpret_sents(sentsB0, '635/arme_piece.fcfg'))
+
+sentsB1 = ['Plum est dans la cuisine']
+printResults(nltk.interpret_sents(sentsB1, '635/personne_piece.fcfg'))
+
+sentsB2 = ['White est vivante']
+printResults(nltk.interpret_sents(sentsB2, '635/personne_vivant.fcfg'))
+
+sentsB3 = ['White est morte']
+printResults(nltk.interpret_sents(sentsB3, '635/personne_morte.fcfg'))
+
+sentsB4 = ['Scarlet a des marques au cou']
+printResults(nltk.interpret_sents(sentsB4, '635/personne_marque.fcfg'))
+
+sentsB5 = ['Scarlet est morte à 14h']
+printResults(nltk.interpret_sents(sentsB5, '635/personne_morte_heure.fcfg'))
+
+sentsB6 = ['White était dans la cuisine à 15h']
+printResults(nltk.interpret_sents(sentsB6, '635/personne_piece_heure.fcfg'))
 
 # #####   step 0 :
 #

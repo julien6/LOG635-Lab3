@@ -7,7 +7,7 @@ class CrimeSentenceAnalyzer:
         self._location_grammar_file = '635/emplacement.fcfg'
         self._crime_hour_grammar_file = '635/heure_crime.fcfg'
         self._location_hour_grammar_file = '635/emplacement_heure.fcfg'
-        self._location_person_grammar = '635/personnage_piece.fcfg'
+        self._location_person_grammar = '635/personne_piece.fcfg'
         self.was_with_who_grammar = '635/etait_avec_qui.fcfg'
 
     def who_is_the_victime(self, sentence):
