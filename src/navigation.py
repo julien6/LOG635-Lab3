@@ -4,7 +4,7 @@ import random
 import time
 import math
 import cozmo
-from cozmo.objects import CustomObject, CustomObjectMarkers, CustomObjectTypes
+from cozmo.objects import CustomObject, CustomObjectMarkers, CustomObjectTypes, LightCube
 from cozmo.util import degrees, Pose
 from cozmo.objects import LightCube1Id, LightCube2Id, LightCube3Id
 from src.inference import add_character_found_fact, add_weapon_found_fact, get_found_victim_name, get_found_murderer_name, get_found_weapon_name, get_found_room_name
@@ -18,40 +18,26 @@ def create_pose(x: float, y: float, angle: float) -> Pose:
     return Pose(x - ORIGIN_X, y - ORIGIN_Y, 0, angle_z=degrees(angle))
 
 
-class RecognizableObject:
-    def __init__(self):
-        self.object: cozmo.world.objects.ObservableObject = None
-
-
-class Cube(RecognizableObject):
-    def __init__(self, id: int):
-        self.id = id
-        self.object = ROBOT.world.get_light_cube(id)
-
-
-class Marker(RecognizableObject):
-    def __init__(self, type: CustomObjectTypes, marker: CustomObjectMarkers):
-        self.type = type
-        self.marker = marker
-        self.object = ROBOT.world.define_custom_wall(type, marker, 300.0, 300.0, 50.0, 30.0, True)
-
-
 class Actor:
-    def __init__(self):
-        self.name: str = None
-        self.recognizable_object = None
+    def __init__(self, name: str, observable_object: cozmo.world.objects.ObservableObject):
+        self.name = name
+        self.observable_object = observable_object
+
+    def is_represented_by(self, other_object):
+        if isinstance(self.observable_object, CustomObject):
+            return isinstance(other_object, CustomObject) and other_object.object_type == self.observable_object.object_type
+        elif isinstance(self.observable_object, LightCube):
+            return isinstance(other_object, LightCube) and other_object.object_id == self.observable_object.object_id
 
 
 class Character(Actor):
-    def __init__(self, name: str, recognizable_object: RecognizableObject):
-        self.name = name
-        self.recognizable_object = recognizable_object
+    def __init__(self, name: str, observable_object: cozmo.world.objects.ObservableObject):
+        super().__init__(name, observable_object)
 
 
 class Weapon(Actor):
-    def __init__(self, name: str, recognizable_object:RecognizableObject):
-        self.name = name
-        self.recognizable_object = recognizable_object
+    def __init__(self, name: str, observable_object: cozmo.world.objects.ObservableObject):
+        super().__init__(name, observable_object)
 
 
 class Wall:
@@ -91,21 +77,21 @@ class Map:
 
         # Markers
         self.markers = [
-            Marker(CustomObjectTypes.CustomType00, CustomObjectMarkers.Circles2),
-            Marker(CustomObjectTypes.CustomType01, CustomObjectMarkers.Circles3),
-            Marker(CustomObjectTypes.CustomType04, CustomObjectMarkers.Diamonds2),
-            Marker(CustomObjectTypes.CustomType05, CustomObjectMarkers.Diamonds3),
-            Marker(CustomObjectTypes.CustomType08, CustomObjectMarkers.Hexagons2),
-            Marker(CustomObjectTypes.CustomType09, CustomObjectMarkers.Hexagons3),
-            Marker(CustomObjectTypes.CustomType12, CustomObjectMarkers.Triangles2),
-            Marker(CustomObjectTypes.CustomType13, CustomObjectMarkers.Triangles3),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType00, CustomObjectMarkers.Circles2, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType01, CustomObjectMarkers.Circles3, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType04, CustomObjectMarkers.Diamonds2, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType05, CustomObjectMarkers.Diamonds3, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType08, CustomObjectMarkers.Hexagons2, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType09, CustomObjectMarkers.Hexagons3, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType12, CustomObjectMarkers.Triangles2, 300.0, 300.0, 50.0, 30.0, True),
+            ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType13, CustomObjectMarkers.Triangles3, 300.0, 300.0, 50.0, 30.0, True)
         ]
 
         # Characters
-        self.scarlet = Character("Scarlet", Cube(LightCube1Id))
+        self.scarlet = Character("Scarlet", ROBOT.world.get_light_cube(LightCube1Id))
         self.plum = Character("Plum", self.markers[0])
         self.white = Character("White", self.markers[1])
-        self.mustard = Character("Mustard", Cube(LightCube2Id))
+        self.mustard = Character("Mustard", ROBOT.world.get_light_cube(LightCube2Id))
         self.peacock = Character("Peacock", self.markers[2])
         self.characters = [self.scarlet, self.plum, self.white, self.mustard, self.peacock]
 
@@ -116,7 +102,7 @@ class Map:
         self.weapons = [self.rope, self.knife, self.gun]
 
         # Communication cube
-        self.communication_cube = Cube(LightCube3Id)
+        self.communication_cube = ROBOT.world.get_light_cube(LightCube3Id)
 
         # Toilet
         self.toilet = Room("Toilet", center_x=150, center_y=200)
@@ -198,10 +184,10 @@ class Map:
 
     def get_actor_from_object(self, object: cozmo.world.objects.ObservableObject) -> Actor:
         for c in self.characters:
-            if c.recognizable_object.object is object:
+            if c.is_represented_by(object):
                 return c
         for w in self.weapons:
-            if w.recognizable_object.object is object:
+            if w.is_represented_by(object):
                 return w
 
     def get_actor_from_name(self, name: str) -> Actor:
@@ -228,53 +214,51 @@ class Program:
         self.found_weapon = None
         self.found_room = None
 
-    def handle_object_appeared(self, evt, **kw):
-        if isinstance(evt.obj, CustomObject):
-            self.current_actor = self.map.get_actor_from_object(evt.obj)
-            print("Cozmo started seeing a %s" % self.current_actor.name)
-
-    def handle_object_disappeared(self, evt, **kw):
-        if isinstance(evt.obj, CustomObject):
-            print("Cozmo stopped seeing a %s" % self.map.get_actor_from_object(evt.obj).name)
-            self.current_actor = None
-
     def handle_cube_tapped(self, evt, **kw):
         if isinstance(evt.obj, CustomObject):
-            print("Communication cube was tapped")
-            self.current_actor = None
+            actor = self.map.get_actor_from_object(evt.obj)
+            if actor == self.map.communication_cube:
+                print("Communication cube was tapped")
 
     def start(self):
         # Create map
         self.map = Map()
 
         # Bind events
-        ROBOT.add_event_handler(cozmo.objects.EvtObjectAppeared, self.handle_object_appeared)
-        ROBOT.add_event_handler(cozmo.objects.EvtObjectDisappeared, self.handle_object_disappeared)
-        ROBOT.add_event_handler(cozmo.objects.EvtObjectTapped, self.handle_object_disappeared)
+        ROBOT.add_event_handler(cozmo.objects.EvtObjectTapped, self.handle_cube_tapped)
 
-        # Test inference...
+        current_room = self.map.start_room
+        # Main loop
         while True:
-            current_room: Room = random.choice(self.map.rooms)
+            print("Current room: " + current_room.name)
+            last_room = current_room
+            while current_room is last_room:
+                current_room = random.choice(self.map.rooms)
+            print("Going to " + current_room.name + " room.")
             ROBOT.go_to_pose(current_room.pose).wait_for_completed()
-            self.cube_was_tapped = False
+            print("Arrived at " + current_room.name + " room.")
             look_around = ROBOT.start_behavior(cozmo.behavior.BehaviorTypes.LookAroundInPlace)
-            while not self.cube_was_tapped:
-                if self.current_actor is not None:
-                    if isinstance(self.current_actor, Character):
-                        was_present_crime_room = None
-                        while was_present_crime_room is not None:
-                            answer = input(self.current_actor.name + ", were you in the " + self.map.murder_room.name + " at 3:00 PM (y/n)?")
-                            if answer == "y":
-                                was_present_crime_room = True
-                            elif answer == "n":
-                                was_present_crime_room = False
-                        # Send fact to inference engine...
-                        add_character_found_fact(self.current_actor.name, current_room.name, was_present_crime_room)
-                    if isinstance(self.current_actor, Weapon):
-                        # Send fact to inference engine...
-                        add_weapon_found_fact(self.current_actor.name, current_room.name)
-                time.sleep(10)
+            observable_objects = ROBOT.world.wait_until_observe_num_objects(num=1, timeout=90)
             look_around.stop()
+            print("Found " + str(len(observable_objects)) + " clues.")
+            if len(observable_objects) != 1:
+                break
+            self.current_actor = self.map.get_actor_from_object(observable_objects[0])
+            if self.current_actor:
+                print("Cozmo observed a clue: %s" % self.current_actor.name)
+                if isinstance(self.current_actor, Character):
+                    was_present_crime_room = None
+                    while was_present_crime_room:
+                        answer = input(self.current_actor.name + ", were you in the " + self.map.murder_room.name + " at 3:00 PM (y/n)?")
+                        if answer == "y":
+                            was_present_crime_room = True
+                        elif answer == "n":
+                            was_present_crime_room = False
+                    # Send fact to inference engine...
+                    add_character_found_fact(self.current_actor.name, current_room.name, was_present_crime_room)
+                if isinstance(self.current_actor, Weapon):
+                    # Send fact to inference engine...
+                    add_weapon_found_fact(self.current_actor.name, current_room.name)
 
             # Have we found the victim?
             victim_name = get_found_victim_name()
