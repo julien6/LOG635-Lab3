@@ -1,6 +1,6 @@
 %start S
 
-S[SEM=?vp] -> VP[SEM=?vp]
+S[SEM=<EstMort(?vp)>] -> VP[SEM=?vp]
 VP[SEM=?n] -> N[SEM=?n] V AD
 N[SEM=?np] -> Nprop[SEM=?np]
 V -> 'est'

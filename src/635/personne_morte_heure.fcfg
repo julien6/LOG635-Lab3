@@ -1,6 +1,6 @@
 %start S
 
-S[SEM=<Mort(?n, ?h)>] -> N[SEM=?n] V AD P Nh[SEM=?h]
+S[SEM=<HeureCrime(?h)>] -> N[SEM=?n] V AD P Nh[SEM=?h]
 N[SEM=?np] -> Nprop[SEM=?np]
 V -> 'est'
 AD -> 'mort' | 'morte'

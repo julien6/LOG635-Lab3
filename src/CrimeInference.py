@@ -18,7 +18,7 @@ class CrimeInference:
         self.piece_clause = 'Piece({})'
         self.personne_clause = 'Personne({})'
 
-        # paramètre 1 : piece; paramètre 2 : arme
+        # paramètre 1 : arme; paramètre 2 : piece
         self.arme_piece_clause = 'Arme_Piece({},{})'
 
         # paramètre 1 : personne; paramètre 2 : piece; paramètre 3 : heure
@@ -101,27 +101,8 @@ class CrimeInference:
             'EstVivant(p) & HeureCrimePlusOne(h1) & Personne_Piece_Heure(p,r2,h1) & PieceCrime(r1)'
             ' & DifferentPiece(r1,r2) & ArmeCrime(a) & Arme_Piece(a,r2) ==> Suspect(p)'))
 
-    def add_personne_vivante(self, personne):
-        self.crime_kb.tell(expr(self.vivant_clause.format(personne)))
-
-    def add_personne_morte(self, personne_morte):
-        self.crime_kb.tell(expr(self.mort_clause.format(personne_morte)))
-
-    def add_arme_piece(self, arme, piece):
-        self.crime_kb.tell(expr(self.arme_piece_clause.format(arme, piece)))
-
-    def add_personne_piece_heure(self, quelqu_un, piece, heure):
-        self.crime_kb.tell(expr(self.personne_piece_heure_clause.format(quelqu_un, piece, heure)))
-
-    def add_personne_piece(self, quelqu_un, piece):
-        self.crime_kb.tell(expr(self.personne_piece_clause.format(quelqu_un, piece)))
-
-    def add_marque_corps(self, personne):
-        self.crime_kb.tell(expr(self.marque_corps_clause.format(personne)))
-
-    def add_crime_heure(self, heure):
-        self.crime_kb.tell(expr(self.crime_heure_clause.format(heure)))
-        self.crime_kb.tell(expr(self.crime_heure_plusone_clause.format(heure + 1)))
+    def add_any_clause(self, clause_string):
+        self.crime_kb.tell(expr(clause_string))
 
     def get_victime(self):
         result = self.crime_kb.ask(expr('Victime(x)'))
@@ -146,13 +127,6 @@ class CrimeInference:
 
     def get_crime_heure(self):
         result = self.crime_kb.ask(expr('HeureCrime(x)'))
-        if not result:
-            return result
-        else:
-            return result[x]
-
-    def get_crime_heure_plusone(self):
-        result = self.crime_kb.ask(expr('HeureCrimePlusOne(x)'))
         if not result:
             return result
         else:

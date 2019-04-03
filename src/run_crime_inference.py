@@ -4,113 +4,119 @@ import nltk
 a = CrimeInference.CrimeInference()
 
 
-def printResults(results):
+def getStringResults(results):
+    res = ''
     for result in results:
         for (synrep, semrep) in result:
-            print(semrep)
+            res += str(semrep)
+    return res
 
 
-sentsB0 = ['Le fusil se trouve dans le salon']
-printResults(nltk.interpret_sents(sentsB0, '635/arme_piece.fcfg'))
+# sentsB0 = ['Le fusil se trouve dans le salon']
+# print(getStringResults(nltk.interpret_sents(sentsB0, '635/arme_piece.fcfg')))
+#
+# sentsB1 = ['Plum est dans la cuisine']
+# print(getStringResults(nltk.interpret_sents(sentsB1, '635/personne_piece.fcfg')))
+#
+# sentsB2 = ['White est vivante']
+# print(getStringResults(nltk.interpret_sents(sentsB2, '635/personne_vivant.fcfg')))
+#
+# sentsB3 = ['White est morte']
+# print(getStringResults(nltk.interpret_sents(sentsB3, '635/personne_morte.fcfg')))
+#
+# sentsB4 = ['Scarlet a des marques au cou']
+# print(getStringResults(nltk.interpret_sents(sentsB4, '635/personne_marque.fcfg')))
+#
+# sentsB5 = ['Scarlet est morte à 14h']
+# print(getStringResults(nltk.interpret_sents(sentsB5, '635/personne_morte_heure.fcfg')))
+#
+# sentsB6 = ['White était dans la cuisine à 15h']
+# print(getStringResults(nltk.interpret_sents(sentsB6, '635/personne_piece_heure.fcfg')))
 
-sentsB1 = ['Plum est dans la cuisine']
-printResults(nltk.interpret_sents(sentsB1, '635/personne_piece.fcfg'))
+#####   step 0 :
 
-sentsB2 = ['White est vivante']
-printResults(nltk.interpret_sents(sentsB2, '635/personne_vivant.fcfg'))
+sents1 = ['Scarlet est morte']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents1, '635/personne_morte.fcfg')))
 
-sentsB3 = ['White est morte']
-printResults(nltk.interpret_sents(sentsB3, '635/personne_morte.fcfg'))
+sents2 = ['Mustard est vivant']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents2, '635/personne_vivant.fcfg')))
 
-sentsB4 = ['Scarlet a des marques au cou']
-printResults(nltk.interpret_sents(sentsB4, '635/personne_marque.fcfg'))
+sents3 = ['Peacock est vivant']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents3, '635/personne_vivant.fcfg')))
 
-sentsB5 = ['Scarlet est morte à 14h']
-printResults(nltk.interpret_sents(sentsB5, '635/personne_morte_heure.fcfg'))
+sents4 = ['Plum est vivant']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents4, '635/personne_vivant.fcfg')))
 
-sentsB6 = ['White était dans la cuisine à 15h']
-printResults(nltk.interpret_sents(sentsB6, '635/personne_piece_heure.fcfg'))
+sents5 = ['White est vivant']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents5, '635/personne_vivant.fcfg')))
 
-# #####   step 0 :
-#
-# sents1 = ['Scarlet est morte']
-# a.add_personne_morte("Scarlet")
-#
-# sents2 = ['Mustard est vivant']
-# a.add_personne_vivante('Mustard')
-#
-# sents3 = ['Peacock est vivant']
-# a.add_personne_vivante('Peacock')
-#
-# sents4 = ['Plum est vivant']
-# a.add_personne_vivante('Plum')
-#
-# sents5 = ['White est vivant']
-# a.add_personne_vivante('White')
-#
-# #####   step 1 : Bureau
-#
-# # Voit que Scarlet est morte par étranglement
-# sents6 = ['Scarlet a des marques']
-# a.add_marque_corps('Scarlet')
-#
-# sents7 = ['Scarlet est dans le bureau']
-# a.add_personne_piece('Scarlet', 'Bureau')
-#
-# # Voit que Peacock est dans le bureau
-# sents8 = ['Peacock est dans le bureau']
-# a.add_personne_piece('Peacock', 'Bureau')
-#
-# # Demande à Peacock l'heure du decès -> Rep : 14h
-# sents9 = ['Scarlet est morte à 14h']
-# a.add_crime_heure(14)
-#
-# uneHeureApres = a.get_crime_heure_plusone()
-#
-# # Demande à Peacock dans quelle pièce il était une heure après le meurtre -> Rep : Peacock dans le Salon à 15h
-# sents10 = ['Peacock etait dans le salon à ' + uneHeureApres]
-# a.add_personne_piece_heure('Peacock', 'Salon', a.get_crime_heure_plusone())
-#
-# #####   step 2 : Salon
-#
-# # Voit qu'il y a un fusil et Plum dans le salon
-# sents11 = ['Le fusil est dans le salon']
-# a.add_arme_piece('Fusil', 'Salon')
-# sents12 = ['Plum est dans le salon']
-# a.add_personne_piece('Plum', 'Salon')
-#
-# # Demande à Plum dans quelle pièce il était une heure après le meurtre -> Rep : Plum dans le Salon à 15h
-# sents13 = ['Plum etait dans le salon à ' + uneHeureApres]
-# a.add_personne_piece_heure('Plum', 'Salon', a.get_crime_heure_plusone())
-#
-# #####   step 3 : Cuisine
-#
-# # Voit qu'il y a un couteau, White et Mustard dans la cuisine
-# sents14 = ['Le couteau est dans la cuisine']
-# a.add_arme_piece('Couteau', 'Cuisine')
-# sents15 = ['White est dans la cuisine']
-# a.add_personne_piece('White', 'Cuisine')
-# sents16 = ['Mustard est dans la cuisine']
-# a.add_personne_piece('Mustard', 'Cuisine')
-#
-# # Demande à White dans quelle pièce il était une heure après le meurtre -> Rep : White dans la Cuisine à 15h
-# sents17 = ['White etait dans la cuisine à ' + uneHeureApres]
-# a.add_personne_piece_heure('White', 'Salon', a.get_crime_heure_plusone())
-#
-# # Demande à Mustard dans quelle pièce il était une heure après le meurtre -> Rep : Mustard dans le Garage à 15h
-# sents18 = ['Mustard etait dans le garage à ' + uneHeureApres]
-# a.add_personne_piece_heure('Mustard', 'Garage', a.get_crime_heure_plusone())
-#
-# #####   step 4 : Garage
-#
-# # Voit qu'il y a une corde dans le garage
-# sents19 = ['La corde est dans le garage']
-# a.add_arme_piece('Corde', 'Garage')
-#
-# ## -> extract informations
-# print("Pièce du crime : ", a.get_piece_crime())
-# print("Arme du crime : ", a.get_arme_crime())
-# print("Personne victime : ", a.get_victime())
-# print("Heure du crime : ", a.get_crime_heure())
-# print("Personnes suspectes : ", a.get_suspect())
-# print("Personnes innocentes : ", a.get_innocent())
+#####   step 1 : Bureau
+
+# Voit que Scarlet est morte par étranglement
+sents6 = ['Scarlet a des marques au cou']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents6, '635/personne_marque.fcfg')))
+
+sents7 = ['Scarlet est dans le bureau']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents7, '635/personne_piece.fcfg')))
+
+# Voit que Peacock est dans le bureau
+sents8 = ['Peacock est dans le bureau']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents8, '635/personne_piece.fcfg')))
+
+# Demande à Peacock l'heure du decès -> Rep : 14h
+sents9 = ['Scarlet est morte à 14h']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents9, '635/personne_morte_heure.fcfg')))
+
+uneHeureApres = a.get_crime_heure() + 1
+
+a.add_any_clause('HeureCrimePlusOne({})'.format(uneHeureApres))
+
+# Demande à Peacock dans quelle pièce il était une heure après le meurtre -> Rep : Peacock dans le Salon à 15h
+sents10 = ['Peacock était dans le salon à ' + str(uneHeureApres) + 'h']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents10, '635/personne_piece_heure.fcfg')))
+
+#####   step 2 : Salon
+
+# Voit qu'il y a un fusil et Plum dans le salon
+sents11 = ['Le fusil est dans le salon']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents11, '635/arme_piece.fcfg')))
+
+sents12 = ['Plum est dans le salon']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents12, '635/personne_piece.fcfg')))
+
+# Demande à Plum dans quelle pièce il était une heure après le meurtre -> Rep : Plum dans le Salon à 15h
+sents13 = ['Plum était dans le salon à ' + str(uneHeureApres) + 'h']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents13, '635/personne_piece_heure.fcfg')))
+
+#####   step 3 : Cuisine
+
+# Voit qu'il y a un couteau, White et Mustard dans la cuisine
+sents14 = ['Le couteau est dans la cuisine']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents14, '635/arme_piece.fcfg')))
+sents15 = ['White est dans la cuisine']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents15, '635/personne_piece.fcfg')))
+sents16 = ['Mustard est dans la cuisine']
+print(getStringResults(nltk.interpret_sents(sents16, '635/personne_piece.fcfg')), " ------")
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents16, '635/personne_piece.fcfg')))
+
+# Demande à White dans quelle pièce il était une heure après le meurtre -> Rep : White dans la Cuisine à 15h
+sents17 = ['White était dans la cuisine à ' + str(uneHeureApres) + 'h']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents17, '635/personne_piece_heure.fcfg')))
+
+# Demande à Mustard dans quelle pièce il était une heure après le meurtre -> Rep : Mustard dans le Garage à 15h
+sents18 = ['Mustard était dans le garage à ' + str(uneHeureApres) + 'h']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents18, '635/personne_piece_heure.fcfg')))
+
+#####   step 4 : Garage
+
+# Voit qu'il y a une corde dans le garage
+sents19 = ['La corde est dans le garage']
+a.add_any_clause(getStringResults(nltk.interpret_sents(sents19, '635/arme_piece.fcfg')))
+
+## -> extract informations
+print("Pièce du crime : ", a.get_piece_crime())
+print("Arme du crime : ", a.get_arme_crime())
+print("Personne victime : ", a.get_victime())
+print("Heure du crime : ", a.get_crime_heure())
+print("Personnes suspectes : ", a.get_suspect())
+print("Personnes innocentes : ", a.get_innocent())
