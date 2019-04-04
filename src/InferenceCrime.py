@@ -3,7 +3,7 @@ from src.aima.logic import *
 
 # Permet d'inferer qui est le meurtrier, quand, comment, où il a tué.
 class InferenceCrime:
-    
+
     def __init__(self):
         self.Armes = ["Corde", "Fusil", "Couteau"]
         self.Pieces = ["Cuisine", "Bureau", "Garage", "Salon"]
