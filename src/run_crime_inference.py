@@ -27,6 +27,7 @@ a.add_any_clause(getStringResults(nltk.interpret_sents(sents4, '635/personne_viv
 sents5 = ['White est vivant']
 a.add_any_clause(getStringResults(nltk.interpret_sents(sents5, '635/personne_vivant.fcfg')))
 
+
 #####   step 1 : Bureau
 
 # Voit que Scarlet est morte par étranglement
