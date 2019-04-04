@@ -1,5 +1,4 @@
-from aima.logic import *
-
+from src.aima.logic import *
 
 # Permet d'inferer qui est le meurtrier, quand, comment, où il a tué.
 class CrimeInference:

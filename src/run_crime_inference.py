@@ -11,28 +11,6 @@ def getStringResults(results):
             res += str(semrep)
     return res
 
-
-# sentsB0 = ['Le fusil se trouve dans le salon']
-# print(getStringResults(nltk.interpret_sents(sentsB0, '635/arme_piece.fcfg')))
-#
-# sentsB1 = ['Plum est dans la cuisine']
-# print(getStringResults(nltk.interpret_sents(sentsB1, '635/personne_piece.fcfg')))
-#
-# sentsB2 = ['White est vivante']
-# print(getStringResults(nltk.interpret_sents(sentsB2, '635/personne_vivant.fcfg')))
-#
-# sentsB3 = ['White est morte']
-# print(getStringResults(nltk.interpret_sents(sentsB3, '635/personne_morte.fcfg')))
-#
-# sentsB4 = ['Scarlet a des marques au cou']
-# print(getStringResults(nltk.interpret_sents(sentsB4, '635/personne_marque.fcfg')))
-#
-# sentsB5 = ['Scarlet est morte à 14h']
-# print(getStringResults(nltk.interpret_sents(sentsB5, '635/personne_morte_heure.fcfg')))
-#
-# sentsB6 = ['White était dans la cuisine à 15h']
-# print(getStringResults(nltk.interpret_sents(sentsB6, '635/personne_piece_heure.fcfg')))
-
 #####   step 0 :
 
 sents1 = ['Scarlet est morte']
@@ -118,5 +96,5 @@ print("Pièce du crime : ", a.get_piece_crime())
 print("Arme du crime : ", a.get_arme_crime())
 print("Personne victime : ", a.get_victime())
 print("Heure du crime : ", a.get_crime_heure())
-print("Personnes suspectes : ", a.get_suspect())
+print("Personne suspecte : ", a.get_suspect())
 print("Personnes innocentes : ", a.get_innocent())
