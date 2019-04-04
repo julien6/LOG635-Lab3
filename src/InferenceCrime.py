@@ -1,6 +1,9 @@
 from src.aima.logic import *
 
 # Permet d'inferer qui est le meurtrier, quand, comment, où il a tué.
+from src.aima.utils import expr
+
+
 class CrimeInference:
     def __init__(self):
         self.Armes = ["Corde", "Fusil", "Couteau"]
@@ -8,8 +11,8 @@ class CrimeInference:
         self.Personnes = ["Mustard", "Peacock", "Scarlet", "Plum", "White"]
         self.clauses = []
         self._cree_base_clauses()
-        self._initialize_base_knowledge()
-        self._combine_clauses()
+        self._initialise_KB()
+        self._regles_inference()
         self.crime_kb = FolKB(self.clauses)
 
     def _cree_base_clauses(self):
@@ -49,15 +52,15 @@ class CrimeInference:
         # paramètre 1 : heure
         self.crime_heure_plusone_clause = 'HeureCrimePlusOne({})'
 
-    def _initialize_base_knowledge(self):
+    def _initialise_KB(self):
 
-        # Initialiser KB sur les pieces
+        # Clause pour savoir si deux pièces sont differentes
         for i in range(len(self.Pieces)):
             for j in range(len(self.Pieces)):
                 if i != j:
                     self.clauses.append(expr(self.piece_differente_clause.format(self.Pieces[i], self.Pieces[j])))
 
-        # Initialiser KB sur les armes
+        # Clause pour savoir si deux armes sont differentes
         for i in range(len(self.Armes)):
             for j in range(len(self.Armes)):
                 if i != j:
@@ -73,7 +76,7 @@ class CrimeInference:
         for personne in self.Personnes:
             self.clauses.append(expr(self.personne_clause.format(personne)))
 
-    def _combine_clauses(self):
+    def _regles_inference(self):
         # Determine la piece du crime
         self.clauses.append(expr('EstMort(x) & Personne_Piece_Heure(x, y, h) & HeureCrime(z) ==> PieceCrime(y)'))
         self.clauses.append(expr('EstMort(x) & Personne_Piece(x, y) ==> PieceCrime(y)'))
@@ -88,13 +91,13 @@ class CrimeInference:
         # Si la personne est morte alors elle est innocente
         self.clauses.append(expr('EstMort(x) ==> Innocent(x)'))
 
-        # Si la personne est vivante et était dans une pièce
+        # Si la personne est vivante et était dans une pièce differente de celle du lieu du crime et qui
         # qui ne contient pas l'arme du crime, alors elle est innocente
         self.clauses.append(expr(
             'EstVivant(p) & HeureCrimePlusOne(h1) & Personne_Piece_Heure(p,r2,h1) & PieceCrime(r1)'
             ' & DifferentPiece(r1,r2) & ArmeCrime(a1) & Arme_Piece(a2,r2) & DifferentArme(a1,a2) ==> Innocent(p)'))
 
-        # Si la personne se trouvait dans une piece qui contient l'arme
+        # Si la personne se trouvait dans une piece differente de celle du lieu du crime et qui contient l'arme
         # qui a tué la victime une heure après le meurtre alors elle est suspecte
         self.clauses.append(expr(
             'EstVivant(p) & HeureCrimePlusOne(h1) & Personne_Piece_Heure(p,r2,h1) & PieceCrime(r1)'
