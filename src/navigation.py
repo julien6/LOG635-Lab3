@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-import random
-import time
 import math
 import cozmo
 from cozmo.objects import CustomObject, CustomObjectMarkers, CustomObjectTypes, LightCube
 from cozmo.util import degrees, Pose
-from cozmo.objects import LightCube1Id, LightCube2Id, LightCube3Id
+from cozmo.objects import LightCube1Id, LightCube2Id
 from src.inference import add_character_found_fact, add_weapon_found_fact, get_found_victim_name, get_found_murderer_name, get_found_weapon_name, get_found_room_name
 
 ROBOT: cozmo.robot.Robot = None
@@ -73,8 +71,6 @@ class Room:
 
 class Map:
     def __init__(self):
-        global ORIGIN_X, ORIGIN_Y
-
         # Markers
         self.markers = [
             ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType00, CustomObjectMarkers.Circles2, 300.0, 300.0, 50.0, 30.0, True),
@@ -100,9 +96,6 @@ class Map:
         self.knife = Weapon("Knife", self.markers[4])
         self.gun = Weapon("Gun", self.markers[5])
         self.weapons = [self.rope, self.knife, self.gun]
-
-        # Communication cube
-        self.communication_cube = ROBOT.world.get_light_cube(LightCube3Id)
 
         # Toilet
         self.toilet = Room("Toilet", center_x=150, center_y=200)
@@ -165,16 +158,12 @@ class Map:
         # Add rooms
         self.rooms = [self.toilet, self.kitchen, self.dining_room,self.living_room, self.office, self.garage]
 
-        # Scenario
-        self.victim = self.scarlet
-        self.murderer = self.mustard
-        self.murder_room = self.office
-        self.murder_weapon = self.rope
-        self.start_room = self.living_room
+    def set_walls_poses(self, start_room: Room):
+        global ORIGIN_X, ORIGIN_Y
 
         # Origin
-        ORIGIN_X = self.start_room.center_x
-        ORIGIN_Y = self.start_room.center_y
+        ORIGIN_X = start_room.center_x
+        ORIGIN_Y = start_room.center_y
 
         # Poses
         for r in self.rooms:
@@ -204,122 +193,133 @@ class Map:
                 return r
 
 
-class Program:
-    def __init__(self):
-        self.map: Map = None
-        self.current_actor: Actor = None
-        self.cube_was_tapped = False
-        self.found_victim = None
-        self.found_murderer = None
-        self.found_weapon = None
-        self.found_room = None
+class VisitedRoom:
+    def __init__(self, room: Room, actors_to_find: set):
+        self.room = room
+        self.actors_to_find = actors_to_find
 
-    def handle_cube_tapped(self, evt, **kw):
-        if isinstance(evt.obj, CustomObject):
-            actor = self.map.get_actor_from_object(evt.obj)
-            if actor == self.map.communication_cube:
-                print("Communication cube was tapped")
 
-    def start(self):
-        # Create map
-        self.map = Map()
+class Scenario:
+    def __init__(self, map: Map):
+        self.map = map
 
-        # Bind events
-        ROBOT.add_event_handler(cozmo.objects.EvtObjectTapped, self.handle_cube_tapped)
+        self.doctor = self.map.peacock
+        self.victim = self.map.scarlet
+        self.murderer = self.map.mustard
+        self.murder_room = self.map.office
+        self.murder_weapon = self.map.rope
 
-        current_room = self.map.start_room
-        # Main loop
+
+class Investigation:
+    def __init__(self, scenario: Scenario):
+        self.scenario = scenario
+
+        self.found_victim: Character = None
+        self.found_murderer: Character = None
+        self.found_weapon: Weapon = None
+        self.found_room: Room = None
+        self.observed_actor: Actor = None
+        self.visited_room: VisitedRoom = None
+        self.hour_victim_died: int = None
+
+        self.rooms_to_visit = list()
+        self.rooms_to_visit.append(VisitedRoom(self.scenario.map.office, {self.scenario.map.peacock}))
+        self.rooms_to_visit.append(VisitedRoom(self.scenario.map.living_room, {self.scenario.map.plum, self.scenario.map.gun}))
+        self.rooms_to_visit.append(VisitedRoom(self.scenario.map.kitchen, {self.scenario.map.white, self.scenario.map.mustard, self.scenario.map.knife}))
+        self.rooms_to_visit.append(VisitedRoom(self.scenario.map.garage, {self.scenario.map.rope}))
+
+        self.scenario.map.set_walls_poses(self.rooms_to_visit[0].room)
+
+    def check_has_all_proofs(self) -> bool:
+        victim_name = get_found_victim_name()
+        if victim_name:
+            self.found_victim = self.scenario.map.get_actor_from_name(victim_name)
+            print("Cozmo found the victim to be: " + victim_name)
+
+        murderer_name = get_found_murderer_name()
+        if murderer_name:
+            self.found_murderer = self.scenario.map.get_actor_from_name(murderer_name)
+            print("Cozmo found the murderer to be: " + murderer_name)
+
+        weapon_name = get_found_weapon_name()
+        if weapon_name:
+            self.found_weapon = self.scenario.map.get_actor_from_name(weapon_name)
+            print("Cozmo found the crime weapon to be: " + weapon_name)
+
+        room_name = get_found_room_name()
+        if room_name:
+            self.found_room = self.scenario.map.get_actor_from_name(room_name)
+            print("Cozmo found the crime room to be: " + room_name)
+
+        if self.found_victim and self.found_murderer and self.found_room and self.found_weapon:
+            print("Solution: " + self.found_murderer.name + " murdered " + self.found_victim.name + " in the " + self.found_room.name + " with the " + self.found_weapon.name + " at " + self.hour_victim_died + ":00.")
+            return True
+        else:
+            return False
+
+    def ask_was_present_crime_room(self) -> bool:
         while True:
-            print("Current room: " + current_room.name)
-            last_room = current_room
-            while current_room is last_room:
-                current_room = random.choice(self.map.rooms)
-            print("Going to " + current_room.name + " room.")
-            ROBOT.go_to_pose(current_room.pose).wait_for_completed()
-            print("Arrived at " + current_room.name + " room.")
+            answer = input(self.observed_actor.name + ", were you in the " + self.scenario.murder_room.name + " at 3:00 PM (y/n)?")
+            if answer == "y":
+                return True
+            elif answer == "n":
+                return False
+
+    def ask_at_what_hour_victim_died(self) -> int:
+        while True:
+            answer = input(self.observed_actor.name + ", you're a doctor. At what hour did " + self.scenario.victim.name + " died (ex: 15)?")
+            try:
+                return int(answer)
+            except ValueError:
+                continue
+
+    def find_all_actors_in_visited_room(self):
+        print("Searching for clues...")
+        while len(self.visited_room.actors_to_find) > 0:
             look_around = ROBOT.start_behavior(cozmo.behavior.BehaviorTypes.LookAroundInPlace)
-            observable_objects = ROBOT.world.wait_until_observe_num_objects(num=1, timeout=90)
+            observable_objects = ROBOT.world.wait_until_observe_num_objects(num=1)
             look_around.stop()
-            print("Found " + str(len(observable_objects)) + " clues.")
-            if len(observable_objects) != 1:
-                break
-            self.current_actor = self.map.get_actor_from_object(observable_objects[0])
-            if self.current_actor:
-                print("Cozmo observed a clue: %s" % self.current_actor.name)
-                if isinstance(self.current_actor, Character):
-                    was_present_crime_room = None
-                    while was_present_crime_room:
-                        answer = input(self.current_actor.name + ", were you in the " + self.map.murder_room.name + " at 3:00 PM (y/n)?")
-                        if answer == "y":
-                            was_present_crime_room = True
-                        elif answer == "n":
-                            was_present_crime_room = False
-                    # Send fact to inference engine...
-                    add_character_found_fact(self.current_actor.name, current_room.name, was_present_crime_room)
-                if isinstance(self.current_actor, Weapon):
-                    # Send fact to inference engine...
-                    add_weapon_found_fact(self.current_actor.name, current_room.name)
+            self.observed_actor = self.scenario.map.get_actor_from_object(observable_objects[0])
+            if self.observed_actor in self.visited_room.actors_to_find:
+                self.visited_room.actors_to_find.remove(self.observed_actor)
+                print("Cozmo found a %s : %s" % type(self.observed_actor).__name__, self.observed_actor.name)
+                if isinstance(self.observed_actor, Character):
+                    # Ask questions
+                    if self.observed_actor is self.scenario.doctor:
+                        self.hour_victim_died = self.ask_at_what_hour_victim_died()
+                    was_present_crime_room = self.ask_was_present_crime_room()
 
-            # Have we found the victim?
-            victim_name = get_found_victim_name()
-            if victim_name is not None:
-                # React to victim found...
-                print("Found victim is " + victim_name)
-                self.found_victim = self.map.get_actor_from_name(victim_name)
-                if self.found_victim is self.map.murderer:
-                    print("Cozmo SUCCEEDED to find the VICTIM")
-                else:
-                    print("Cozmo FAILED to find the VICTIM")
-                    break
+                    # Send fact to inference engine
+                    add_character_found_fact(self.observed_actor.name, self.visited_room.room.name, was_present_crime_room)
+                if isinstance(self.observed_actor, Weapon):
+                    # Send fact to inference engine
+                    add_weapon_found_fact(self.observed_actor.name, self.visited_room.room.name)
 
-            # Have we found the murderer?
-            murderer_name = get_found_murderer_name()
-            if murderer_name is not None:
-                # React to murdered found...
-                print("Found murdered is " + murderer_name)
-                self.found_murderer = self.map.get_actor_from_name(murderer_name)
-                if self.found_murderer is self.map.murderer:
-                    print("Cozmo SUCCEEDED to find the MURDERER")
-                else:
-                    print("Cozmo FAILED to find the MURDERER")
-                    break
-
-            # Have we found the room?
-            weapon_name = get_found_weapon_name()
-            if weapon_name is not None:
-                # React to weapon found...
-                print("Found weapon is " + weapon_name)
-                self.found_weapon = self.map.get_actor_from_name(weapon_name)
-                if self.found_weapon is self.map.murder_weapon:
-                    print("Cozmo SUCCEEDED to find the WEAPON")
-                else:
-                    print("Cozmo FAILED to find the WEAPON")
-                    break
-
-            # Have we found the weapon?
-            room_name = get_found_room_name()
-            if room_name is not None:
-                # React to murdered found...
-                print("Found room is " + room_name)
-                self.found_room = self.map.get_room_from_name(room_name)
-                if self.found_room is self.map.murder_room:
-                    print("Cozmo SUCCEEDED to find the ROOM")
-                else:
-                    print("Cozmo FAILED to find the ROOM")
-                    break
-
-            if self.found_victim is not None and self.found_murderer is not None and self.found_room is not None and self.found_weapon is not None:
-                print(self.found_murderer.name + " murdered " + self.found_victim.name + " in the " + self.found_room.name + " with the " + self.found_weapon.name)
-                print("COZMO SUCCEEDED TO SOLVE THE CRIME!!!")
-                break
-
-        print("Investigation terminated!")
+    def solve(self) -> bool:
+        self.visited_room = self.rooms_to_visit.pop(0)
+        while self.visited_room:
+            print("Current room: " + self.visited_room.room.name)
+            self.find_all_actors_in_visited_room()
+            self.visited_room = self.rooms_to_visit.pop(0)
+            if self.visited_room:
+                print("Going to room: " + self.visited_room.room.name)
+                ROBOT.go_to_pose(self.visited_room.room.pose).wait_for_completed()
+        return self.check_has_all_proofs()
 
 
 def cozmo_program(robot: cozmo.robot.Robot):
     global ROBOT
+
     ROBOT = robot
-    Program().start()
+
+    map = Map()
+    scenario = Scenario(map)
+    investigation = Investigation(scenario)
+
+    if investigation.solve():
+        print("Investigation succeeded!")
+    else:
+        print("Investigation failed!")
 
 
 cozmo.run_program(cozmo_program, use_3d_viewer=True, use_viewer=True)
