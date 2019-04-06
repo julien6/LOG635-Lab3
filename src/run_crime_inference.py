@@ -1,7 +1,7 @@
-from src import InferenceCrime
+from src import inference
 import nltk
 
-a = InferenceCrime.InferenceCrime()
+a = inference.InferenceCrime()
 
 
 def getStringResults(results):
