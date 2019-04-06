@@ -82,6 +82,9 @@ class Room:
 
 class Map:
     def __init__(self):
+        # Reset world
+        ROBOT.world.delete_all_custom_objects()
+
         # Markers
         self.markers = [
             ROBOT.world.define_custom_wall(CustomObjectTypes.CustomType00, CustomObjectMarkers.Circles2, 30.0, 30.0, 30.0, 30.0, True),
@@ -115,25 +118,25 @@ class Map:
         self.toilet.walls.append(Wall(x=0, y=400, length=300, angle=0))
         self.toilet.walls.append(Wall(x=300, y=0, length=100, angle=90))
         self.toilet.walls.append(Wall(x=300, y=200, length=200, angle=90))
-        self.toilet.characters.append(self.mustard)
-
-        # Kitchen
-        self.kitchen = Room("cuisine", center_x=450, center_y=50)
-        self.kitchen.walls.append(Wall(x=300, y=0, length=300, angle=0))
-        self.kitchen.walls.append(Wall(x=300, y=0, length=100, angle=90))
-        self.kitchen.walls.append(Wall(x=300, y=100, length=200, angle=0))
-        self.kitchen.walls.append(Wall(x=600, y=0, length=100, angle=90))
-        self.kitchen.weapons.append(self.knife)
 
         # DiningRoom
-        self.dining_room = Room("salle a diner", center_x=450, center_y=250)
+        self.dining_room = Room("salle a diner", center_x=450, center_y=50)
+        self.dining_room.walls.append(Wall(x=300, y=0, length=300, angle=0))
+        self.dining_room.walls.append(Wall(x=300, y=0, length=100, angle=90))
         self.dining_room.walls.append(Wall(x=300, y=100, length=200, angle=0))
-        self.dining_room.walls.append(Wall(x=300, y=200, length=200, angle=90))
-        self.dining_room.walls.append(Wall(x=300, y=400, length=100, angle=0))
-        self.dining_room.walls.append(Wall(x=500, y=400, length=100, angle=0))
-        self.dining_room.walls.append(Wall(x=600, y=100, length=100, angle=90))
-        self.dining_room.walls.append(Wall(x=600, y=300, length=100, angle=90))
-        self.dining_room.characters.append(self.white)
+        self.dining_room.walls.append(Wall(x=600, y=0, length=100, angle=90))
+
+        # Kitchen
+        self.kitchen = Room("cuisine", center_x=450, center_y=250)
+        self.kitchen.walls.append(Wall(x=300, y=100, length=200, angle=0))
+        self.kitchen.walls.append(Wall(x=300, y=200, length=200, angle=90))
+        self.kitchen.walls.append(Wall(x=300, y=400, length=100, angle=0))
+        self.kitchen.walls.append(Wall(x=500, y=400, length=100, angle=0))
+        self.kitchen.walls.append(Wall(x=600, y=100, length=100, angle=90))
+        self.kitchen.walls.append(Wall(x=600, y=300, length=100, angle=90))
+        self.kitchen.characters.append(self.knife)
+        self.kitchen.characters.append(self.mustard)
+        self.kitchen.weapons.append(self.white)
 
         # LivingRoom
         self.living_room = Room("salon", center_x=800, center_y=200)
