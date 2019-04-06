@@ -251,25 +251,21 @@ class Investigation:
     def check_has_all_proofs(self) -> bool:
         victim_name = get_found_victim_name()
         if victim_name:
-            print(victim_name)
             self.found_victim = self.scenario.map.get_actor_from_name(victim_name)
             print("Cozmo a trouvé la victime: " + self.found_victim.name)
 
         murderer_name = get_found_murderer_name()
         if murderer_name:
-            print(murderer_name)
             self.found_murderer = self.scenario.map.get_actor_from_name(murderer_name)
             print("Cozmo a trouvé le meurtrier: " + self.found_murderer.name)
 
         weapon_name = get_found_weapon_name()
         if weapon_name:
-            print(weapon_name)
             self.found_weapon = self.scenario.map.get_actor_from_name(weapon_name)
             print("Cozmo a trouvé l'arme du crime: " + self.found_weapon.name)
 
         room_name = get_found_room_name()
         if room_name:
-            print(room_name)
             self.found_room = self.scenario.map.get_room_from_name(room_name)
             print("Cozmo a trouvé la pièce du crime: " + self.found_room.name)
 
